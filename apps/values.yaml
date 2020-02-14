@@ -8,7 +8,7 @@ global:
 
   source:
     # Git URL where are the applications located
-    repoURL: https://github.com/ruzickap/argocd-apps
+    repoURL: https://github.com/Mirantis/magma-argocd-apps
 
     # (optional) If not specified then "HEAD" is used
     targetRevision: HEAD
@@ -26,7 +26,7 @@ applications:
     project: default
 
     # (optional) If not specified then "global" repoURL is used
-    repoURL: https://github.com/ruzickap/argocd-apps
+    repoURL: https://github.com/Mirantis/magma-argocd-apps
 
     # (optional) If not specified then "global" server is used
     server: https://kubernetes.default.svc

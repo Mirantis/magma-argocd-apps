@@ -3,7 +3,7 @@ name: applications-prow-tekton
 version: v0.1.0
 appVersion: v0.1.0
 description: Applications - prow-tekton
-home: https://github.com/ruzickap/argocd-apps/prow-tekton
+home: https://github.com/Mirantis/magma-argocd-apps/prow-tekton
 icon: https://raw.githubusercontent.com/argoproj/argo/master/docs/assets/argo.png
 keywords:
   - argocd
@@ -14,7 +14,7 @@ keywords:
   - tekton-pipelines
   - tekton-dashboard
 sources:
-  - https://github.com/ruzickap/argocd-apps/prow-tekton
+  - https://github.com/Mirantis/magma-argocd-apps/prow-tekton
 maintainers:
   - name: ruzickap
     email: petr.ruzicka@gmail.com
