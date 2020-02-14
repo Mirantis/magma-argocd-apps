@@ -1,3 +1,6 @@
+# Authentication domain
+oauth2_domain: auth.myexample.com
+
 # Hostname for tekton-dashboard
 tekton_host: tekton-dashboard.myexample.com
 
