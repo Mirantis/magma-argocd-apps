@@ -4,8 +4,8 @@ metadata:
   name: tekton-dashboard
   namespace: tekton-pipelines
   annotations:
-    ingress.kubernetes.io/auth-url: https://{{ $.Values.oauth2_domain }}/oauth2/auth
-    ingress.kubernetes.io/auth-signin: https://{{ $.Values.oauth2_domain }}/oauth2/start?rd=https://$host$request_uri$is_args$args
+    nginx.ingress.kubernetes.io/auth-url: https://{{ $.Values.oauth2_domain }}/oauth2/auth
+    nginx.ingress.kubernetes.io/auth-signin: https://{{ $.Values.oauth2_domain }}/oauth2/start?rd=$scheme://$host$request_uri
 spec:
   tls:
     - hosts:
