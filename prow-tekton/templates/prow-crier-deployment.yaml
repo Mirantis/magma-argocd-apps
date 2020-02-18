@@ -20,6 +20,7 @@ spec:
         - name: crier
           image: gcr.io/k8s-prow/crier:v20200205-656133e91
           args:
+            - --github-workers=1
             - --slack-workers=1
             - --config-path=/etc/config/config.yaml
             - --slack-token-file=/etc/slack/token
@@ -31,6 +32,9 @@ spec:
             - name: slack
               mountPath: /etc/slack
               readOnly: true
+            - name: oauth
+              mountPath: /etc/github
+              readOnly: true
       volumes:
         - name: slack
           secret:
@@ -38,3 +42,6 @@ spec:
         - name: config
           configMap:
             name: config
+        - name: oauth
+          secret:
+            secretName: oauth-token
