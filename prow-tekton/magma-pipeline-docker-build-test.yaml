@@ -14,7 +14,7 @@ spec:
     - name: revision
       value: master
     - name: url
-      value: https://github.com/Mirantis/magma.git
+      value: https://github.com/{{ $.Values.github_source_code_repository }}
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineRun
