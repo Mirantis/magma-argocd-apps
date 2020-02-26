@@ -7,11 +7,11 @@ TEKTON_PIPELINE_VERSION="v0.10.1"
 
 # Script to update tekton yaml files form upstream
 
-curl -sL https://github.com/tektoncd/dashboard/releases/download/${TEKTON_DASHBOARD_VERSION}/tekton-dashboard-release.yaml > templates/tekton-dashboard.yaml
+curl -sL https://github.com/tektoncd/dashboard/releases/download/${TEKTON_DASHBOARD_VERSION}/tekton-dashboard-release.yaml > templates/tekton/tekton-dashboard.yaml
 
 curl -sL https://github.com/tektoncd/pipeline/releases/download/${TEKTON_PIPELINE_VERSION}/release.yaml | sed \
   -e '17 a\ \ labels:\n\ \ \ \ app: kubed' \
-> templates/tekton-pipelines.yaml
+> templates/tekton/tekton-pipelines.yaml
 
 
 # Script to update prow yaml files form upstream
@@ -27,6 +27,6 @@ tac templates/starter.yaml-upstream | sed \
   -e '/          servicePort: 8888/,/^---$/d;' \
   -e '/  plugins.yaml: ""/,/^---$/d' \
   -e '/command: \["\/bin\/date"\]/,/^---$/d' \
-| tac > templates/prow.yaml
+| tac > templates/prow/prow.yaml
 
 rm templates/starter.yaml-upstream
