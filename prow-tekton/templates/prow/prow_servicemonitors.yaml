@@ -1,0 +1,94 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: deck
+  name: deck
+  namespace: {{ $.Values.prow_namespace }}
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.prow_namespace }}
+  selector:
+    matchLabels:
+      app: deck
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: hook
+  name: hook
+  namespace: {{ $.Values.prow_namespace }}
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.prow_namespace }}
+  selector:
+    matchLabels:
+      app: hook
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: plank
+  name: plank
+  namespace: {{ $.Values.prow_namespace }}
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.prow_namespace }}
+  selector:
+    matchLabels:
+      app: plank
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: sinker
+  name: sinker
+  namespace: {{ $.Values.prow_namespace }}
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.prow_namespace }}
+  selector:
+    matchLabels:
+      app: sinker
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: tide
+  name: tide
+  namespace: {{ $.Values.prow_namespace }}
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ $.Values.prow_namespace }}
+  selector:
+    matchLabels:
+      app: tide

@@ -16,17 +16,20 @@ curl -sL https://github.com/tektoncd/pipeline/releases/download/${TEKTON_PIPELIN
 
 # Script to update prow yaml files form upstream
 
-#curl -s https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/cmd/pipeline/dev.yaml > templates/prow_dev.yaml
+curl -s https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/cluster/starter.yaml > templates/prow/starter.yaml-upstream
 
-curl -s https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/cluster/starter.yaml > templates/starter.yaml-upstream
-
-tac templates/starter.yaml-upstream | sed \
+tac templates/prow/starter.yaml-upstream | sed \
   -e 's/ namespace: default/ namespace: {{ $.Values.prow_namespace }}/' \
   -e 's/ prowjob_namespace: default/ prowjob_namespace: {{ $.Values.prowjob_namespace }}/' \
   -e 's/: test-pods/: {{ $.Values.prowjob_namespace }}/' \
   -e '/          servicePort: 8888/,/^---$/d;' \
   -e '/  plugins.yaml: ""/,/^---$/d' \
   -e '/command: \["\/bin\/date"\]/,/^---$/d' \
+  -e '/  type: NodePort/,/^---$/d' \
 | tac > templates/prow/prow.yaml
 
-rm templates/starter.yaml-upstream
+for FILE in deck_service hook_service plank_service sinker_service tide_service; do
+  curl -s https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/cluster/$FILE.yaml | sed 's/namespace: default/namespace: {{ $.Values.prow_namespace }}/' > templates/prow/prow-services/$FILE.yaml
+done
+
+rm templates/prow/starter.yaml-upstream
