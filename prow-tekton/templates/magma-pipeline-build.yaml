@@ -1,0 +1,120 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: build-magma-container-images-from-git-source
+  namespace: {{ $.Values.prowjob_namespace }}
+spec:
+  inputs:
+    resources:
+      - name: git-repository
+        type: git
+    params:
+      - name: buildCommands
+        description: Build commands
+        type: string
+      - name: pathToContext
+        description: The source code
+        default: /workspace/git-repository/
+        type: string
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: docker-config
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+  steps:
+    - name: build-magma-container-images
+      image: peru/magma-ci-infra
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      script: |
+        #!/bin/sh -eux
+        cd $(inputs.params.pathToContext)
+        $(inputs.params.buildCommands)
+      volumeMounts:
+        - name: docker-config
+          mountPath: /tekton/home/.docker/
+        - name: dockersock
+          mountPath: "/var/run/docker.sock"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: magma-pipeline
+  namespace: {{ $.Values.prowjob_namespace }}
+spec:
+  resources:
+    - name: git-repository
+      type: git
+  tasks:
+    - name: build-orc8r-core
+      taskRef:
+        name: build-magma-container-images-from-git-source
+      params:
+        - name: buildCommands
+          value: |
+            set -ex
+            cd orc8r/cloud/docker
+            ./build.py
+            for IMAGE in orc8r_proxy orc8r_controller ; do
+              docker tag "${IMAGE}" "magmacik8smagmamirantiscloud.azurecr.io/${IMAGE}:latest"
+              docker push "magmacik8smagmamirantiscloud.azurecr.io/${IMAGE}:latest"
+            done
+      resources:
+        inputs:
+          - name: git-repository
+            resource: git-repository
+    - name: build-nmp
+      taskRef:
+        name: build-magma-container-images-from-git-source
+      params:
+        - name: buildCommands
+          value: |
+            set -ex
+            cd symphony/app/fbcnms-projects/magmalte
+            docker-compose build --parallel
+            docker tag "magmalte_magmalte" "{{ $.Values.acr_login_server }}/magmalte_magmalte:latest"
+            docker push "{{ $.Values.acr_login_server }}/magmalte_magmalte:latest"
+      resources:
+        inputs:
+          - name: git-repository
+            resource: git-repository
+    - name: build-feg
+      taskRef:
+        name: build-magma-container-images-from-git-source
+      params:
+        - name: buildCommands
+          value: |
+            set -ex
+            cd feg/gateway/docker
+            docker-compose build --parallel
+            for IMAGE in feg_gateway_go feg_gateway_python ; do
+              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+              docker push "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+            done
+      resources:
+        inputs:
+          - name: git-repository
+            resource: git-repository
+    - name: build-cfw
+      taskRef:
+        name: build-magma-container-images-from-git-source
+      params:
+        - name: buildCommands
+          value: |
+            set -ex
+            cd cwf/gateway/docker
+            docker-compose build --parallel
+            for IMAGE in cwf_gateway_go cwf_gateway_python cwf_gateway_radius cwf_gateway_sessiond cwf_gateway_pipelined ; do
+              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+              docker push "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+            done
+      resources:
+        inputs:
+          - name: git-repository
+            resource: git-repository
