@@ -11,6 +11,7 @@ curl -sL https://github.com/tektoncd/dashboard/releases/download/${TEKTON_DASHBO
 
 curl -sL https://github.com/tektoncd/pipeline/releases/download/${TEKTON_PIPELINE_VERSION}/release.yaml | sed \
   -e '17 a\ \ labels:\n\ \ \ \ app: kubed' \
+  -e 's|default-timeout-minutes: "60"  # 60 minutes|default-timeout-minutes: "100"  # 100 minutes|' \
 > templates/tekton/tekton-pipelines.yaml
 
 
