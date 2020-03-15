@@ -1,6 +1,6 @@
 #!/bin/bash -eux
 
-TEKTON_DASHBOARD_VERSION="v0.5.0"
+TEKTON_DASHBOARD_VERSION="v0.5.2"
 # Use tekton pipeline version which is supported by prow !
 # https://github.com/kubernetes/test-infra/blob/master/go.mod#L92
 TEKTON_PIPELINE_VERSION="v0.10.1"

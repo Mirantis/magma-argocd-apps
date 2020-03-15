@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: crier
-          image: gcr.io/k8s-prow/crier:v20200205-656133e91
+          image: gcr.io/k8s-prow/crier:v20200314-12f848798
           args:
             - --github-workers=1
             - --slack-workers=1
