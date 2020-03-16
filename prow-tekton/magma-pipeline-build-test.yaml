@@ -1,0 +1,32 @@
+# Use this manifest for testing the pipeline
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: git-repository
+  namespace: prowjob
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  type: git
+  params:
+    - name: revision
+      value: master
+    - name: url
+      value: https://github.com/facebookincubator/magma.git
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: test-pipeline
+  namespace: prowjob
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+spec:
+  pipelineRef:
+    name: magma-pipeline
+  resources:
+    - name: git-repository
+      resourceRef:
+        name: git-repository
