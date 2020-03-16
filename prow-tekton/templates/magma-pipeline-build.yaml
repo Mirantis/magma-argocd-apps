@@ -62,8 +62,8 @@ spec:
             cd orc8r/cloud/docker
             ./build.py
             for IMAGE in orc8r_proxy orc8r_controller ; do
-              docker tag "${IMAGE}" "magmacik8smagmamirantiscloud.azurecr.io/${IMAGE}:latest"
-              docker push "magmacik8smagmamirantiscloud.azurecr.io/${IMAGE}:latest"
+              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
             done
       resources:
         inputs:
@@ -78,8 +78,8 @@ spec:
             set -ex
             cd symphony/app/fbcnms-projects/magmalte
             docker-compose build --parallel
-            docker tag "magmalte_magmalte" "{{ $.Values.acr_login_server }}/magmalte_magmalte:latest"
-            docker push "{{ $.Values.acr_login_server }}/magmalte_magmalte:latest"
+            docker tag "magmalte_magmalte" "{{ $.Values.acr_login_server }}/magma/magmalte_magmalte:latest"
+            docker push "{{ $.Values.acr_login_server }}/magma/magmalte_magmalte:latest"
       resources:
         inputs:
           - name: git-repository
@@ -94,8 +94,8 @@ spec:
             cd feg/gateway/docker
             docker-compose build --parallel
             for IMAGE in feg_gateway_go feg_gateway_python ; do
-              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
-              docker push "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
             done
       resources:
         inputs:
@@ -111,8 +111,8 @@ spec:
             cd cwf/gateway/docker
             docker-compose build --parallel
             for IMAGE in cwf_gateway_go cwf_gateway_python cwf_gateway_radius cwf_gateway_sessiond cwf_gateway_pipelined ; do
-              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
-              docker push "{{ $.Values.acr_login_server }}/${IMAGE}:latest"
+              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
             done
       resources:
         inputs:
