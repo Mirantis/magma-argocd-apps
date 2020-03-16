@@ -28,7 +28,7 @@ spec:
         path: /var/run/docker.sock
   steps:
     - name: build-magma-container-images
-      image: peru/magma-ci-infra
+      image: mirantis/magma-ci
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
@@ -53,7 +53,6 @@ spec:
       type: git
   tasks:
     - name: build-orc8r-core
-      Timeout: "2h"
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
@@ -71,7 +70,6 @@ spec:
           - name: git-repository
             resource: git-repository
     - name: build-nmp
-      Timeout: "2h"
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
@@ -87,7 +85,6 @@ spec:
           - name: git-repository
             resource: git-repository
     - name: build-feg
-      Timeout: "2h"
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
@@ -105,7 +102,6 @@ spec:
           - name: git-repository
             resource: git-repository
     - name: build-cfw
-      Timeout: "2h"
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
