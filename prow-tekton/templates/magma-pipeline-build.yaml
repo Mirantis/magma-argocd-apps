@@ -61,9 +61,15 @@ spec:
             set -ex
             cd orc8r/cloud/docker
             ./build.py
+            GIT_COMMIT="$(git rev-parse --short HEAD)"
+            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
             for IMAGE in orc8r_proxy orc8r_controller ; do
-              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
-              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              for TAG in $GIT_COMMIT latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
+                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+              done
+              docker rmi "${IMAGE}"
             done
       resources:
         inputs:
@@ -78,8 +84,16 @@ spec:
             set -ex
             cd symphony/app/fbcnms-projects/magmalte
             docker-compose build --parallel
-            docker tag "magmalte_magmalte" "{{ $.Values.acr_login_server }}/magma/magmalte_magmalte:latest"
-            docker push "{{ $.Values.acr_login_server }}/magma/magmalte_magmalte:latest"
+            GIT_COMMIT="$(git rev-parse --short HEAD)"
+            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
+            for IMAGE in magmalte_magmalte ; do
+              for TAG in $GIT_COMMIT latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
+                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+              done
+              docker rmi "${IMAGE}"
+            done
       resources:
         inputs:
           - name: git-repository
@@ -93,9 +107,15 @@ spec:
             set -ex
             cd feg/gateway/docker
             docker-compose build --parallel
+            GIT_COMMIT="$(git rev-parse --short HEAD)"
+            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
             for IMAGE in feg_gateway_go feg_gateway_python ; do
-              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
-              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              for TAG in $GIT_COMMIT latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
+                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+              done
+              docker rmi "${IMAGE}"
             done
       resources:
         inputs:
@@ -110,9 +130,15 @@ spec:
             set -ex
             cd cwf/gateway/docker
             docker-compose build --parallel
+            GIT_COMMIT="$(git rev-parse --short HEAD)"
+            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
             for IMAGE in cwf_gateway_go cwf_gateway_python cwf_gateway_radius cwf_gateway_sessiond cwf_gateway_pipelined ; do
-              docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
-              docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:latest"
+              for TAG in $GIT_COMMIT latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
+                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+              done
+              docker rmi "${IMAGE}"
             done
       resources:
         inputs:
