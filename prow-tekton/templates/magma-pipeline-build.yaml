@@ -9,12 +9,23 @@ spec:
       - name: git-repository
         type: git
     params:
-      - name: buildCommands
-        description: Build commands
-        type: string
       - name: pathToContext
         description: The source code
         default: /workspace/git-repository/
+        type: string
+      - name: componentDirectory
+        description: Directory of the component which will be built
+        type: string
+      - name: buildCommands
+        description: Build commands
+        default: "docker-compose --verbose build --parallel"
+        type: string
+      - name: createdContainers
+        description: Containers created by build step
+        type: string
+      - name: cleanCommands
+        description: Remove all containers created by build step
+        default: "docker-compose down -v --rmi all --remove-orphans"
         type: string
   volumes:
     - name: docker-config
@@ -34,8 +45,18 @@ spec:
           value: "/tekton/home/.docker/"
       script: |
         #!/bin/sh -eux
-        cd $(inputs.params.pathToContext)
+        cd $(inputs.params.pathToContext)/$(inputs.params.componentDirectory)
         $(inputs.params.buildCommands)
+        GIT_COMMIT="$(git rev-parse --short HEAD)"
+        GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
+        for IMAGE in $(inputs.params.createdContainers) ; do
+          for TAG in latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
+            docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+            docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+            docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
+          done
+        done
+        $(inputs.params.cleanCommands)
       volumeMounts:
         - name: docker-config
           mountPath: /tekton/home/.docker/
@@ -52,49 +73,32 @@ spec:
     - name: git-repository
       type: git
   tasks:
-    - name: build-orc8r-core
-      taskRef:
-        name: build-magma-container-images-from-git-source
-      params:
-        - name: buildCommands
-          value: |
-            set -ex
-            cd orc8r/cloud/docker
-            ./build.py
-            GIT_COMMIT="$(git rev-parse --short HEAD)"
-            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
-            for IMAGE in orc8r_proxy orc8r_controller ; do
-              for TAG in latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
-                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-              done
-            done
-            docker-compose down -v --rmi all --remove-orphans
-            docker-compose -f docker-compose.cache.yml down -v --rmi all --remove-orphans
-      resources:
-        inputs:
-          - name: git-repository
-            resource: git-repository
     - name: build-nmp
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
+        - name: componentDirectory
+          value: symphony/app/fbcnms-projects/magmalte
+        - name: createdContainers
+          value: "magmalte_magmalte"
+      resources:
+        inputs:
+          - name: git-repository
+            resource: git-repository
+    - name: build-orc8r
+      taskRef:
+        name: build-magma-container-images-from-git-source
+      params:
+        - name: componentDirectory
+          value: orc8r/cloud/docker
+        - name: createdContainers
+          value: "orc8r_proxy orc8r_controller"
         - name: buildCommands
+          value: "./build.py --nocache"
+        - name: cleanCommands
           value: |
-            set -ex
-            cd symphony/app/fbcnms-projects/magmalte
-            docker-compose build --parallel
-            GIT_COMMIT="$(git rev-parse --short HEAD)"
-            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
-            for IMAGE in magmalte_magmalte ; do
-              for TAG in latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
-                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-              done
-            done
             docker-compose down -v --rmi all --remove-orphans
+            docker-compose -f docker-compose.cache.yml down -v --rmi all --remove-orphans
       resources:
         inputs:
           - name: git-repository
@@ -103,21 +107,10 @@ spec:
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
-        - name: buildCommands
-          value: |
-            set -ex
-            cd feg/gateway/docker
-            docker-compose build --parallel
-            GIT_COMMIT="$(git rev-parse --short HEAD)"
-            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
-            for IMAGE in feg_gateway_go feg_gateway_python ; do
-              for TAG in latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
-                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-              done
-            done
-            docker-compose down -v --rmi all --remove-orphans
+        - name: componentDirectory
+          value: feg/gateway/docker
+        - name: createdContainers
+          value: "feg_gateway_go feg_gateway_python"
       resources:
         inputs:
           - name: git-repository
@@ -126,21 +119,10 @@ spec:
       taskRef:
         name: build-magma-container-images-from-git-source
       params:
-        - name: buildCommands
-          value: |
-            set -ex
-            cd cwf/gateway/docker
-            docker-compose build --parallel
-            GIT_COMMIT="$(git rev-parse --short HEAD)"
-            GIT_COMMIT_DATE="$(git log -1 --format=%cd --date=format:'%Y%m%d')"
-            for IMAGE in cwf_gateway_go cwf_gateway_python cwf_gateway_radius cwf_gateway_sessiond cwf_gateway_pipelined ; do
-              for TAG in latest ${GIT_COMMIT_DATE}-${GIT_COMMIT}; do
-                docker tag "${IMAGE}" "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker push "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-                docker rmi "{{ $.Values.acr_login_server }}/magma/${IMAGE}:${TAG}"
-              done
-            done
-            docker-compose down -v --rmi all --remove-orphans
+        - name: componentDirectory
+          value: cwf/gateway/docker
+        - name: createdContainers
+          value: "cwf_gateway_go cwf_gateway_python cwf_gateway_radius cwf_gateway_sessiond cwf_gateway_pipelined"
       resources:
         inputs:
           - name: git-repository
