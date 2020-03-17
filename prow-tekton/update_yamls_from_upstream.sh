@@ -28,6 +28,10 @@ tac templates/prow/starter.yaml-upstream | sed \
   -e '/  type: NodePort/,/^---$/d' \
 | tac > templates/prow/prow.yaml
 
+PROW_IMAGE_VERSION=$(awk -F: '/gcr.io\/k8s-prow\/hook/ { print $3 }' templates/prow/starter.yaml-upstream)
+# Use the same image version for all prow containers
+sed -i "s@\(image: gcr.io/k8s-prow/[^:]*\).*@\1:$PROW_IMAGE_VERSION@" templates/prow/*.yaml
+
 for FILE in deck_service hook_service plank_service sinker_service tide_service; do
   curl -s https://raw.githubusercontent.com/kubernetes/test-infra/master/prow/cluster/$FILE.yaml | sed 's/namespace: default/namespace: {{ $.Values.prow_namespace }}/' > templates/prow/prow-services/$FILE.yaml
 done

@@ -16,7 +16,7 @@ spec:
       serviceAccount: prow-pipeline
       containers:
       - name: pipeline
-        image: gcr.io/k8s-prow/pipeline:v20200312-052680510
+        image: gcr.io/k8s-prow/pipeline:v20200316-b3233486a
         imagePullPolicy: Always  # Good practice for dev/debugging, bad for prod
         args:
           - --all-contexts
