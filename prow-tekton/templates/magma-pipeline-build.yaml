@@ -18,7 +18,7 @@ spec:
         type: string
       - name: buildCommands
         description: Build commands
-        default: "docker-compose --verbose build --parallel"
+        default: "docker-compose build"
         type: string
       - name: createdContainers
         description: Containers created by build step
