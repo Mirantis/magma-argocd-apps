@@ -3,7 +3,7 @@
 TEKTON_DASHBOARD_VERSION="v0.5.3"
 # Use tekton pipeline version which is supported by prow !
 # https://github.com/kubernetes/test-infra/blob/master/go.mod#L92
-TEKTON_PIPELINE_VERSION="v0.10.1"
+TEKTON_PIPELINE_VERSION="v0.10.2"
 
 # Script to update tekton yaml files form upstream
 
